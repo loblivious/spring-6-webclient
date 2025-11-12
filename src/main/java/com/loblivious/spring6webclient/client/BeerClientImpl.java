@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.loblivious.spring6webclient.model.BeerDTO;
 import com.loblivious.spring6webclient.model.RestPageImpl;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 public class BeerClientImpl implements BeerClient {
 
   public static final String BEER_PATH = "/api/v1/beer";
+  public static final String BEER_PATH_ID = BEER_PATH + "/{beerId}";
 
   private final WebClient webClient;
 
@@ -47,5 +49,11 @@ public class BeerClientImpl implements BeerClient {
 
     return webClient.get().uri(BEER_PATH)
         .retrieve().bodyToMono(type).map(bar -> (Page<BeerDTO>) bar);
+  }
+
+  @Override
+  public Mono<BeerDTO> getBeerById(UUID id) {
+    return webClient.get().uri(uriBuilder -> uriBuilder.path(BEER_PATH_ID).build(id))
+        .retrieve().bodyToMono(BeerDTO.class);
   }
 }

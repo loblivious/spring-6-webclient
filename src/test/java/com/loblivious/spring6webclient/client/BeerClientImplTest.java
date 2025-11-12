@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import reactor.core.publisher.Flux;
 
 @SpringBootTest
 class BeerClientImplTest {
@@ -57,6 +58,22 @@ class BeerClientImplTest {
       System.out.println(response.getContent());
       atomicBoolean.set(true);
     });
+
+    await().untilTrue(atomicBoolean);
+  }
+
+  @Test
+  void testGetBeerById() {
+
+    AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
+    beerClient.listBeerPage()
+        .flatMap(page -> Flux.fromIterable(page.getContent()).next())
+        .flatMap(dto -> beerClient.getBeerById(dto.getId()))
+        .subscribe(byIdDto -> {
+          System.out.println(byIdDto.getBeerName());
+          atomicBoolean.set(true);
+        });
 
     await().untilTrue(atomicBoolean);
   }
