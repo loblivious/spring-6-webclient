@@ -48,6 +48,4 @@ public class BeerClientImpl implements BeerClient {
     return webClient.get().uri(BEER_PATH)
         .retrieve().bodyToMono(type).map(bar -> (Page<BeerDTO>) bar);
   }
-
-
 }
