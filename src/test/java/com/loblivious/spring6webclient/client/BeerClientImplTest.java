@@ -2,6 +2,7 @@ package com.loblivious.spring6webclient.client;
 
 import static org.awaitility.Awaitility.await;
 
+import com.loblivious.spring6webclient.model.BeerStyle;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,19 @@ class BeerClientImplTest {
           System.out.println(byIdDto.getBeerName());
           atomicBoolean.set(true);
         });
+
+    await().untilTrue(atomicBoolean);
+  }
+
+  @Test
+  void testGetBeerByBeerStyle() {
+    AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
+    beerClient.getBeerByBeerStyle(BeerStyle.PALE_ALE.name()).subscribe(response -> {
+          System.out.println(response.getContent());
+          atomicBoolean.set(true);
+        }
+    );
 
     await().untilTrue(atomicBoolean);
   }

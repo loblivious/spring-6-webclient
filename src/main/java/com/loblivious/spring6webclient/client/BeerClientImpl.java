@@ -18,6 +18,10 @@ public class BeerClientImpl implements BeerClient {
   public static final String BEER_PATH = "/api/v1/beer";
   public static final String BEER_PATH_ID = BEER_PATH + "/{beerId}";
 
+
+  private final ParameterizedTypeReference<RestPageImpl<BeerDTO>> type = new ParameterizedTypeReference<>() {
+  };
+
   private final WebClient webClient;
 
   public BeerClientImpl(WebClient.Builder webClientBuilder) {
@@ -44,9 +48,6 @@ public class BeerClientImpl implements BeerClient {
 
   @Override
   public Mono<Page<BeerDTO>> listBeerPage() {
-    ParameterizedTypeReference<RestPageImpl<BeerDTO>> type = new ParameterizedTypeReference<>() {
-    };
-
     return webClient.get().uri(BEER_PATH)
         .retrieve().bodyToMono(type).map(bar -> (Page<BeerDTO>) bar);
   }
@@ -55,5 +56,12 @@ public class BeerClientImpl implements BeerClient {
   public Mono<BeerDTO> getBeerById(UUID id) {
     return webClient.get().uri(uriBuilder -> uriBuilder.path(BEER_PATH_ID).build(id))
         .retrieve().bodyToMono(BeerDTO.class);
+  }
+
+  @Override
+  public Mono<Page<BeerDTO>> getBeerByBeerStyle(String beerStyle) {
+    return webClient.get()
+        .uri(uriBuilder -> uriBuilder.path(BEER_PATH).queryParam("beerStyle", beerStyle).build())
+        .retrieve().bodyToMono(type).map(bar -> bar);
   }
 }
