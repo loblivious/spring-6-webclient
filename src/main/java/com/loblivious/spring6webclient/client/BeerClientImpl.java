@@ -24,19 +24,19 @@ public class BeerClientImpl implements BeerClient {
 
   @Override
   public Flux<String> listBeer() {
-    return webClient.get().uri(BEER_PATH, String.class)
+    return webClient.get().uri(BEER_PATH)
         .retrieve().bodyToFlux(String.class);
   }
 
   @Override
   public Flux<Map> listBeerMap() {
-    return webClient.get().uri(BEER_PATH, Map.class)
+    return webClient.get().uri(BEER_PATH)
         .retrieve().bodyToFlux(Map.class);
   }
 
   @Override
   public Flux<JsonNode> listBeerJsonNode() {
-    return webClient.get().uri(BEER_PATH, JsonNode.class)
+    return webClient.get().uri(BEER_PATH)
         .retrieve().bodyToFlux(JsonNode.class);
   }
 
