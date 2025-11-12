@@ -48,4 +48,16 @@ class BeerClientImplTest {
 
     await().untilTrue(atomicBoolean);
   }
+
+  @Test
+  void listBeerPage() {
+    AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
+    beerClient.listBeerPage().subscribe(response -> {
+      System.out.println(response.getContent());
+      atomicBoolean.set(true);
+    });
+
+    await().untilTrue(atomicBoolean);
+  }
 }
