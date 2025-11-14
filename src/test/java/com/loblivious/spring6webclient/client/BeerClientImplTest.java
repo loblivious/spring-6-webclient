@@ -2,7 +2,9 @@ package com.loblivious.spring6webclient.client;
 
 import static org.awaitility.Awaitility.await;
 
+import com.loblivious.spring6webclient.model.BeerDTO;
 import com.loblivious.spring6webclient.model.BeerStyle;
+import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +90,27 @@ class BeerClientImplTest {
           atomicBoolean.set(true);
         }
     );
+
+    await().untilTrue(atomicBoolean);
+  }
+
+  @Test
+  void testCreateBeer() {
+    AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
+    BeerDTO newDto = BeerDTO.builder()
+        .price(new BigDecimal("10.99"))
+        .beerName("Mango Bobs")
+        .beerStyle(BeerStyle.IPA)
+        .quantityOnHand(500)
+        .upc("1234566778")
+        .build();
+
+    beerClient.createBeer(newDto)
+            .subscribe(dto -> {
+              System.out.println(dto.toString());
+              atomicBoolean.set(true);
+            });
 
     await().untilTrue(atomicBoolean);
   }

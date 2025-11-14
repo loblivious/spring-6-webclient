@@ -21,4 +21,6 @@ public interface BeerClient {
   Mono<BeerDTO> getBeerById(UUID id);
 
   Mono<Page<BeerDTO>> getBeerByBeerStyle(String beerStyle);
+
+  Mono<BeerDTO> createBeer(BeerDTO beerDto);
 }

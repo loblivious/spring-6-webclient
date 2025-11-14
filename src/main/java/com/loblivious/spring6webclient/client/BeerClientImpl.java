@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.loblivious.spring6webclient.model.BeerDTO;
 import com.loblivious.spring6webclient.model.RestPageImpl;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
@@ -63,5 +64,18 @@ public class BeerClientImpl implements BeerClient {
     return webClient.get()
         .uri(uriBuilder -> uriBuilder.path(BEER_PATH).queryParam("beerStyle", beerStyle).build())
         .retrieve().bodyToMono(type).map(bar -> bar);
+  }
+
+  @Override
+  public Mono<BeerDTO> createBeer(BeerDTO beerDto) {
+    return webClient.post().uri(BEER_PATH)
+        .body(Mono.just(beerDto), BeerDTO.class)
+        .retrieve()
+        .toBodilessEntity()
+        .map(voidResponseEntity ->
+            Objects.requireNonNull(voidResponseEntity.getHeaders().get("Location")).getFirst()
+        )
+        .map(path -> UUID.fromString(path.split("/")[path.split("/").length - 1]))
+        .flatMap(this::getBeerById);
   }
 }
