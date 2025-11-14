@@ -107,10 +107,41 @@ class BeerClientImplTest {
         .build();
 
     beerClient.createBeer(newDto)
-            .subscribe(dto -> {
-              System.out.println(dto.toString());
-              atomicBoolean.set(true);
-            });
+        .subscribe(dto -> {
+          System.out.println(dto.toString());
+          atomicBoolean.set(true);
+        });
+
+    await().untilTrue(atomicBoolean);
+  }
+
+  @Test
+  void testUpdateBeer() {
+    final String name = "New Name";
+
+    AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
+    beerClient.listBeerPage()
+        .flatMap(page -> Flux.fromIterable(page.getContent()).next())
+        .doOnNext(beerDto -> beerDto.setBeerName(name))
+        .flatMap(dto -> beerClient.updateBeer(dto))
+        .subscribe(byIdDto -> {
+          System.out.println(byIdDto.toString());
+          atomicBoolean.set(true);
+        });
+
+    await().untilTrue(atomicBoolean);
+  }
+
+  @Test
+  void testDeleteBeer() {
+    AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
+    beerClient.listBeerPage()
+        .flatMap(page -> Flux.fromIterable(page.getContent()).next())
+        .flatMap(dto -> beerClient.deleteBeer(dto))
+        .doOnSuccess(_ -> atomicBoolean.set(true))
+        .subscribe();
 
     await().untilTrue(atomicBoolean);
   }

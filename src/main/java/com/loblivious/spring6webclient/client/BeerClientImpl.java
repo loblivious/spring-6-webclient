@@ -31,39 +31,51 @@ public class BeerClientImpl implements BeerClient {
 
   @Override
   public Flux<String> listBeer() {
-    return webClient.get().uri(BEER_PATH)
-        .retrieve().bodyToFlux(String.class);
+    return webClient.get()
+        .uri(BEER_PATH)
+        .retrieve()
+        .bodyToFlux(String.class);
   }
 
   @Override
   public Flux<Map> listBeerMap() {
-    return webClient.get().uri(BEER_PATH)
-        .retrieve().bodyToFlux(Map.class);
+    return webClient.get()
+        .uri(BEER_PATH)
+        .retrieve()
+        .bodyToFlux(Map.class);
   }
 
   @Override
   public Flux<JsonNode> listBeerJsonNode() {
-    return webClient.get().uri(BEER_PATH)
-        .retrieve().bodyToFlux(JsonNode.class);
+    return webClient.get()
+        .uri(BEER_PATH)
+        .retrieve()
+        .bodyToFlux(JsonNode.class);
   }
 
   @Override
   public Mono<Page<BeerDTO>> listBeerPage() {
-    return webClient.get().uri(BEER_PATH)
-        .retrieve().bodyToMono(type).map(bar -> (Page<BeerDTO>) bar);
+    return webClient.get()
+        .uri(BEER_PATH)
+        .retrieve()
+        .bodyToMono(type)
+        .map(bar -> (Page<BeerDTO>) bar);
   }
 
   @Override
   public Mono<BeerDTO> getBeerById(UUID id) {
-    return webClient.get().uri(uriBuilder -> uriBuilder.path(BEER_PATH_ID).build(id))
-        .retrieve().bodyToMono(BeerDTO.class);
+    return webClient.get()
+        .uri(uriBuilder -> uriBuilder.path(BEER_PATH_ID).build(id))
+        .retrieve()
+        .bodyToMono(BeerDTO.class);
   }
 
   @Override
   public Mono<Page<BeerDTO>> getBeerByBeerStyle(String beerStyle) {
     return webClient.get()
         .uri(uriBuilder -> uriBuilder.path(BEER_PATH).queryParam("beerStyle", beerStyle).build())
-        .retrieve().bodyToMono(type).map(bar -> bar);
+        .retrieve()
+        .bodyToMono(type).map(bar -> bar);
   }
 
   @Override
@@ -77,5 +89,24 @@ public class BeerClientImpl implements BeerClient {
         )
         .map(path -> UUID.fromString(path.split("/")[path.split("/").length - 1]))
         .flatMap(this::getBeerById);
+  }
+
+  @Override
+  public Mono<BeerDTO> updateBeer(BeerDTO beerDto) {
+    return webClient.put()
+        .uri(uriBuilder -> uriBuilder.path(BEER_PATH_ID).build(beerDto.getId()))
+        .body(Mono.just(beerDto), BeerDTO.class)
+        .retrieve()
+        .toBodilessEntity()
+        .flatMap(_ -> getBeerById(beerDto.getId()));
+  }
+
+  @Override
+  public Mono<Void> deleteBeer(BeerDTO beerDto) {
+    return webClient.delete()
+        .uri(uriBuilder -> uriBuilder.path(BEER_PATH_ID).build(beerDto.getId()))
+        .retrieve()
+        .toBodilessEntity()
+        .then();
   }
 }
